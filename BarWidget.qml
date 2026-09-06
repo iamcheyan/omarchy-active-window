@@ -216,14 +216,54 @@ BarWidget {
 
     function resolveAppIcon(appId) {
         if (!appId || appId.length === 0) return "";
-        var icon = Quickshell.iconPath(appId, true);
-        if (icon) return icon;
-        icon = Quickshell.iconPath(appId.toLowerCase(), true);
-        if (icon) return icon;
-        var parts = appId.split(".");
-        var last = parts[parts.length - 1].toLowerCase();
-        icon = Quickshell.iconPath(last, true);
-        if (icon) return icon;
+
+        // A Wayland appId is not necessarily the icon name. Resolve the
+        // desktop entry first so apps such as Firefox and Alacritty keep their
+        // icons even when their startup class and desktop file ID differ.
+        var names = [];
+        var addName = function(value) {
+            if (value && String(value).length > 0 && names.indexOf(String(value)) < 0) {
+                names.push(String(value));
+            }
+        };
+
+        var entry = DesktopEntries.heuristicLookup(appId);
+        if (!entry) entry = DesktopEntries.byId(appId);
+        if (entry) addName(entry.icon);
+
+        var appIdLower = String(appId).toLowerCase();
+        var applications = DesktopEntries.applications.values || [];
+        for (var i = 0; i < applications.length; i++) {
+            var candidate = applications[i];
+            var startupClass = String(candidate.startupClass || "").toLowerCase();
+            var entryId = String(candidate.id || "").replace(/\.desktop$/i, "").toLowerCase();
+            if (startupClass === appIdLower || entryId === appIdLower) {
+                addName(candidate.icon);
+                break;
+            }
+        }
+
+        addName(appId);
+        addName(appIdLower);
+        var parts = String(appId).split(".");
+        addName(parts[parts.length - 1].toLowerCase());
+
+        for (var j = 0; j < names.length; j++) {
+            var icon = names[j];
+            if (icon.indexOf("file://") === 0 || icon.indexOf("image://") === 0) return icon;
+            if (icon.charAt(0) === "/") return Util.fileUrl(icon);
+
+            // Reuse Omarchy's live icon index. It finds icons installed in
+            // XDG data directories even when Qt's theme cache does not.
+            var appLibrary = root.bar && root.bar.shell ? root.bar.shell.appLibrary : null;
+            if (appLibrary && typeof appLibrary.iconSource === "function") {
+                var indexed = appLibrary.iconSource(icon);
+                if (indexed) return indexed;
+            }
+
+            var resolved = Quickshell.iconPath(icon, true);
+            if (resolved) return resolved;
+        }
         return "";
     }
 
@@ -261,13 +301,13 @@ BarWidget {
                 sourceSize.height: 14 * Screen.devicePixelRatio
                 fillMode: Image.PreserveAspectFit
                 asynchronous: true
-                visible: source !== "" && status !== Image.Error
+                visible: status === Image.Ready
                 smooth: true
             }
 
             Rectangle {
                 anchors.fill: parent
-                visible: !iconImage.visible || iconImage.status === Image.Error
+                visible: !iconImage.visible
                 radius: 3
                 color: Util.alpha(root.bar ? root.bar.barForeground : Color.foreground, 0.15)
 
