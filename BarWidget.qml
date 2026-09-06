@@ -141,7 +141,7 @@ BarWidget {
             name += " " + ver;
         }
         if (root.nixarchyRelease && root.nixarchyRelease.length > 0) {
-            name += "|Nixarchy " + root.nixarchyRelease;
+            name += " | Nixarchy " + root.nixarchyRelease;
         }
         return name || "Desktop";
     }
