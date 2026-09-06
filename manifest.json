@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "iamcheyan.active-window",
+  "name": "Active Window",
+  "version": "2.0.0",
+  "author": "iamcheyan",
+  "license": "MIT",
+  "description": "Native Omarchy top bar widget displaying active window title and icon, or OS distro logo and version on empty desktop, with window action menu.",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Active Window",
+    "description": "Focused-window title and icon, or system distro icon and version on empty desktop",
+    "category": "Compositor",
+    "allowMultiple": false,
+    "defaultSection": "left"
+  }
+}
