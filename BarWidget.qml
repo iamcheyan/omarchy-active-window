@@ -37,22 +37,6 @@ BarWidget {
         ? root.resolveAppIcon(root.windowAppId)
         : root.osIconPath
 
-    property var menuTarget: null
-    property bool menuOpen: false
-
-    function close() {
-        root.menuOpen = false;
-    }
-
-    function toggle() {
-        if (root.menuOpen) {
-            root.close();
-        } else {
-            root.menuTarget = root.focusedToplevel;
-            root.menuOpen = true;
-        }
-    }
-
     // --- Distro & System Release Detection ---
     property string distroName: "Linux"
     property string distroId: "nixos"
@@ -193,21 +177,6 @@ BarWidget {
         NumberAnimation { duration: 160; easing.type: Easing.OutCubic }
     }
 
-    Rectangle {
-        id: pillBackground
-        anchors.fill: parent
-        anchors.topMargin: Style.space(3)
-        anchors.bottomMargin: Style.space(3)
-        radius: height / 2
-        color: mouseArea.pressed ? Util.alpha(root.bar ? root.bar.barForeground : Color.foreground, 0.18)
-             : (mouseArea.containsMouse || root.menuOpen ? Util.alpha(root.bar ? root.bar.barForeground : Color.foreground, 0.10)
-             : "transparent")
-
-        Behavior on color {
-            ColorAnimation { duration: 120 }
-        }
-    }
-
     Row {
         id: contentRow
         anchors.fill: parent
@@ -268,34 +237,14 @@ BarWidget {
         id: mouseArea
         anchors.fill: parent
         hoverEnabled: true
-        acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
-        cursorShape: Qt.PointingHandCursor
-
-        onClicked: function(mouse) {
-            if (mouse.button === Qt.MiddleButton) {
-                if (root.focusedToplevel) root.focusedToplevel.close();
-                return;
-            }
-            root.toggle();
-        }
+        acceptedButtons: Qt.NoButton
+        cursorShape: Qt.ArrowCursor
 
         onEntered: {
             if (root.bar) root.bar.showTooltip(root, root.displayTitle);
         }
         onExited: {
             if (root.bar) root.bar.hideTooltip(root);
-        }
-    }
-
-    Loader {
-        id: menuLoader
-        active: root.menuOpen
-        sourceComponent: ActiveWindowMenu {
-            anchorItem: root
-            owner: root
-            bar: root.bar
-            open: root.menuOpen
-            targetToplevel: root.menuTarget
         }
     }
 }
