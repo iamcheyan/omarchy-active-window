@@ -12,7 +12,7 @@ BarWidget {
     id: root
     moduleName: "iamcheyan.active-window"
 
-    property int titleAreaWidth: Number(setting("maxWidth", 280))
+    property int titleAreaWidth: Number(setting("maxWidth", 320))
 
     // Compositor-agnostic focused-window lookup
     readonly property var focusedToplevel: {
@@ -31,7 +31,7 @@ BarWidget {
 
     readonly property string displayTitle: root.hasWindow
         ? (root.windowTitle || root.windowAppId)
-        : root.desktopDisplayName()
+        : root.desktopDisplayName
 
     readonly property string displayIcon: root.hasWindow
         ? root.resolveAppIcon(root.windowAppId)
@@ -43,15 +43,51 @@ BarWidget {
     property string distroVersion: ""
     property string distroLike: ""
 
+    // Nixarchy release detection (when running under Nixarchy on NixOS)
+    readonly property string nixFlakePath: {
+        const envFlake = Quickshell.env("NIXARCHY_FLAKE");
+        if (envFlake && envFlake.length > 0) return envFlake;
+        const home = Quickshell.env("HOME");
+        if (home && home.length > 0) return home + "/nixos-config";
+        return "/home/tetsuya/nixos-config";
+    }
+
+    property string nixarchyRelease: ""
+
     FileView {
         id: osReleaseFile
         path: "/etc/os-release"
-        onLoaded: root.parseOsRelease(osReleaseFile.text())
+        printErrors: false
+        onLoaded: root.parseOsRelease(text())
+    }
+
+    FileView {
+        id: flakeLockFile
+        path: root.nixFlakePath + "/flake.lock"
+        printErrors: false
+        watchChanges: true
+        onLoaded: root.parseFlakeLock(text())
+        onFileChanged: reload()
+    }
+
+    FileView {
+        id: flakeNixFile
+        path: root.nixFlakePath + "/flake.nix"
+        printErrors: false
+        watchChanges: true
+        onLoaded: root.parseFlakeNix(text())
+        onFileChanged: reload()
     }
 
     Component.onCompleted: {
         if (osReleaseFile.text()) {
             root.parseOsRelease(osReleaseFile.text());
+        }
+        if (flakeLockFile.text()) {
+            root.parseFlakeLock(flakeLockFile.text());
+        }
+        if (root.nixarchyRelease === "" && flakeNixFile.text()) {
+            root.parseFlakeNix(flakeNixFile.text());
         }
     }
 
@@ -71,13 +107,41 @@ BarWidget {
         root.distroLike = likeMatch ? likeMatch[1] : "";
     }
 
-    function desktopDisplayName() {
+    function parseFlakeLock(rawText) {
+        if (!rawText) return;
+        try {
+            const data = JSON.parse(rawText);
+            const ref = data?.nodes?.nixarchy?.original?.ref;
+            if (ref && typeof ref === "string" && ref.length > 0) {
+                root.nixarchyRelease = ref;
+                return;
+            }
+        } catch (e) {}
+
+        const match = String(rawText).match(/"nixarchy"[\s\S]*?"ref":\s*"(v[0-9a-zA-Z._-]+)"/);
+        if (match && match[1]) {
+            root.nixarchyRelease = match[1];
+        }
+    }
+
+    function parseFlakeNix(rawText) {
+        if (!rawText || root.nixarchyRelease !== "") return;
+        const match = String(rawText).match(/github:olafkfreund\/nixarchy\/(v[0-9a-zA-Z._-]+)/);
+        if (match && match[1]) {
+            root.nixarchyRelease = match[1];
+        }
+    }
+
+    readonly property string desktopDisplayName: {
         var name = root.distroName;
         if (!name || name.length === 0) return "Desktop";
         name = name.replace(/\s*\([^)]*\)\s*$/, "").trim();
         var ver = root.distroVersion;
         if (ver && ver.length > 0 && !name.includes(ver)) {
             name += " " + ver;
+        }
+        if (root.nixarchyRelease && root.nixarchyRelease.length > 0) {
+            name += "|Nixarchy " + root.nixarchyRelease;
         }
         return name || "Desktop";
     }
