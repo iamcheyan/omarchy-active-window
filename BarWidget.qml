@@ -209,6 +209,7 @@ BarWidget {
 
                 Text {
                     anchors.centerIn: parent
+                    textFormat: Text.PlainText
                     text: root.fallbackLetter(root.windowAppId, root.displayTitle)
                     font.family: root.bar ? root.bar.fontFamily : Style.font.family
                     font.pixelSize: 9

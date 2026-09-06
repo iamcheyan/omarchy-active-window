@@ -1,5 +1,7 @@
 # Active Window
 
+[English](#active-window) | [中文说明](#中文说明) | [日本語](#日本語)
+
 Active Window is a native Omarchy top-bar widget that displays the current focused window's application icon and title in the top bar. When on an empty workspace or desktop, it seamlessly transitions to display the Linux distribution's official logo and version number (such as NixOS 26.05, Arch Linux, Fedora, Ubuntu, Debian, etc.).
 
 ![Active Window preview](preview.png)
@@ -103,6 +105,8 @@ MIT. See [LICENSE](LICENSE).
 
 # 中文说明
 
+[English](#active-window) | [中文说明](#中文说明) | [日本語](#日本語)
+
 Active Window 是一个为 Omarchy 桌面环境量身打造的原生状态栏小部件，用于在顶部栏左侧优雅呈现当前活动窗口的应用图标与标题。当切换至空白工作区或桌面时，小部件会自动无缝切换显示当前 Linux 发行版的官方矢量图标与系统版本号（例如 NixOS 26.05、Arch Linux、Fedora、Ubuntu、Debian 等）。
 
 ![Active Window 预览](preview.png)
@@ -204,6 +208,8 @@ MIT 开源许可证，详见 [LICENSE](LICENSE)。
 ---
 
 # 日本語
+
+[English](#active-window) | [中文说明](#中文说明) | [日本語](#日本語)
 
 Active Window は、トップバーの左側に現在フォーカスされているウィンドウのアプリケーションアイコンとタイトルを表示する、Omarchy Quattro 向けステータスバーウィジェットです。ワークスペース上にウィンドウがないデスクトップ状態のときは、自動的に利用中の Linux ディストリビューション公式ロゴとバージョン番号（NixOS 26.05、Arch Linux、Fedora、Ubuntu、Debian など）を表示します。
 
