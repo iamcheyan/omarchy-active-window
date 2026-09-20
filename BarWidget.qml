@@ -14,12 +14,29 @@ BarWidget {
 
     property int titleAreaWidth: Number(setting("maxWidth", 320))
 
-    // Compositor-agnostic focused-window lookup
+    // Every Omarchy bar surface is created once per output.  Use the screen
+    // attached to this widget's actual PanelWindow instead of the shared Bar
+    // object (the latter has no per-output screen property).
+    readonly property var barWindow: root.QsWindow ? root.QsWindow.window : null
+    readonly property string barScreenName: root.barWindow && root.barWindow.screen
+        ? String(root.barWindow.screen.name || "") : ""
+
+    // Select a toplevel belonging to this output.  `activeToplevel` is global
+    // to the Wayland session, so using it as an unconditional fallback makes
+    // every monitor show the same application.  Prefer the focused window on
+    // this output, then use the first visible toplevel on the output itself.
     readonly property var focusedToplevel: {
-        const barScreen = root.bar?.screen?.name ?? root.QsWindow.window?.screen?.name ?? "";
-        const list = ToplevelManager.toplevels.values;
-        const matches = list.filter(t => t.activated && (barScreen === "" || t.screens.some(s => s.name === barScreen)));
-        return matches[0] ?? ToplevelManager.activeToplevel ?? null;
+        const screenName = root.barScreenName;
+        const list = ToplevelManager.toplevels.values || [];
+        if (!screenName) return ToplevelManager.activeToplevel ?? null;
+
+        const onThisScreen = list.filter(t =>
+            t && !t.minimized && t.screens &&
+            t.screens.some(s => s && s.name === screenName));
+        if (onThisScreen.length === 0) return null;
+
+        const activated = onThisScreen.find(t => t.activated);
+        return activated ?? onThisScreen[0];
     }
 
     readonly property bool hasWindow: root.focusedToplevel !== null &&

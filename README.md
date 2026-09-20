@@ -8,6 +8,10 @@ Active Window is a native Omarchy top-bar widget that displays the current focus
 
 _Active Window running in the top bar of Omarchy Quattro, showing the focused application icon and window title, and switching to the distribution logo and version on an empty desktop._
 
+## Recent updates
+
+- **2026-09-20 — Multi-monitor window scoping**: Each bar instance now resolves a window from its own output. Focused windows are preferred, with a visible window on that output used as a fallback, so different monitors no longer display the same global active window.
+
 ## Features
 
 - **Active Window Identity**: Displays the focused window's native application icon and window title with clean right-side eliding.
@@ -113,6 +117,10 @@ Active Window 是一个为 Omarchy 桌面环境量身打造的原生状态栏小
 
 _运行于 Omarchy Quattro 顶栏中的 Active Window 小部件，窗口聚焦时展示应用图标与标题，桌面状态展示发行版 Logo 与版本号。_
 
+## 更新记录
+
+- **2026-09-20 — 多显示器支持**：每个显示器的顶栏实例现在只从自身所在输出解析窗口；优先显示该屏幕的活动窗口，并在没有活动窗口时显示该屏幕上的可见窗口，避免所有显示器重复显示同一个全局活动窗口。
+
 ## 功能特性
 
 - **活动窗口标识**：顶栏实时呈现当前获得焦点的窗口图标及完整标题，超出长度时平滑省略。
@@ -216,6 +224,10 @@ Active Window は、トップバーの左側に現在フォーカスされてい
 ![Active Window プレビュー](preview.png)
 
 _Omarchy Quattro のトップバーで動作する Active Window ウィジェット。ウィンドウフォーカス時はアプリアイコンとタイトルを表示し、空白デスクトップ時はディストリビューションロゴとバージョンを表示します。_
+
+## 更新履歴
+
+- **2026-09-20 — マルチモニター対応**：各バーインスタンスが自身の出力に属するウィンドウだけを解決するようになりました。各モニターのフォーカス中のウィンドウを優先し、なければその出力上の可視ウィンドウを表示します。
 
 ## 主な機能
 
